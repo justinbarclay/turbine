@@ -1,4 +1,4 @@
-use schema_parser::Database;
+use schema_parser::{rust::ToRust, spec::ToSpec, Database};
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
@@ -55,6 +55,8 @@ fn main() {
     eprintln!("couldn't read {}: {}", display, why);
     return;
   }
-
-  println!("{}", Database::from(&schema).to_spec())
+  match opts.output{
+    OutputTypes::Spec =>   println!("{}", Database::from(&schema).to_spec()),
+    OutputTypes::Rust =>   println!("{}", Database::from(&schema).to_rust())
+  }
 }
