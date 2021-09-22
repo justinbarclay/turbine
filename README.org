@@ -1,0 +1,131 @@
+* Turbine
+#+BEGIN_QUOTE
+Turbine is a toy CLI app for converting Rails schema declarations into equivalent type declarations in other languages.
+#+END_QUOTE
+It's described as a toy because the parsing of schema files is less than robust, and the conversion into type declarations is somewhat limited. Basically, use it at your own risk sort of thing.
+
+#+NAME: Usage
+#+begin_src shell
+USAGE:
+    turbine [OPTIONS]
+
+FLAGS:
+    -h, --help       Print help information
+    -V, --version    Print version information
+
+OPTIONS:
+    -f, --format <FORMAT>    Specifies type definition format to convert the schema file into
+                             [default: spec] [possible values: spec, rust, typescript]
+    -o, --output <OUTPUT>    The name of the file to output the results into
+    -s, --schema <SCHEMA>    Specifies the location of the Rails schema file [default: db/schema.rb]
+#+end_src
+** Example Output
+Given a rails schema of
+#+begin_src ruby
+  ActiveRecord::Schema.define(version: 2021_09_16_202951) do
+    create_table "sample_schema", id: :serial, force: :cascade do |t|
+      t.primary_key "a"
+      t.string "b"
+      t.text "c"
+      t.integer "d"
+      t.bigint "e"
+      t.float "f"
+      t.decimal "g"
+      t.numeric "h"
+      t.datetime "i"
+      t.time "j"
+      t.date "k"
+      t.binary "l"
+      t.boolean "m"
+      t.hstore "n"
+      t.jsonb "o"
+      t.datetime "created_at", null: false
+      t.datetime "updated_at", null: false
+    end
+  end
+#+end_src
+
+*** Clojure Spec
+#+NAME: Clojure Spec
+#+begin_src clojure
+(spec/def sample_schema
+  {:a int?
+   :b string?
+   :c string?
+   :d int?
+   :e int?
+   :f float?
+   :g float?
+   :h int?
+   :i string?
+   :j string?
+   :k string?
+   :l string?
+   :m boolean?
+   :n map?
+   :o map?
+   :created_at string?
+   :updated_at string?})
+#+end_src
+
+*** Rust
+#+NAME: Rust
+#+begin_src rust
+struct SampleSchema {
+   a: usize,
+   b: String,
+   c: String,
+   d: i64,
+   e: i128,
+   f: f64,
+   g: f64,
+   h: i64,
+   i: String,
+   j: String,
+   k: String,
+   l: Vec<u8>,
+   m: bool,
+   n: std::collections::HashMap<String,String>,
+   o: std::collections::HashMap<String,String>,
+   created_at: String,
+   updated_at: String,
+}
+#+end_src
+
+*** TypeScript
+#+NAME: TypeScript
+#+begin_src typescript
+  type SampleSchema {
+    a: number;
+    b: string;
+    c: string;
+    d: number;
+    e: number;
+    f: number;
+    g: number;
+    h: number;
+    i: string;
+    j: string;
+    k: string;
+    l: string;
+    m: bool;
+    n: any;
+    o: any;
+    created_at: string;
+    updated_at: string;
+  }
+#+end_src
+** Building
+I have not set up, like, any CI/CD for this. So if you want a copy you'll have to build it yourself. Luckily, Rust makes this pretty easy.
+#+begin_src shell
+  $ cargo build --release
+   # or if you want to install it onto your path
+  $ cargo install --path .
+#+end_src
+
+** Where laziness won
+For example, when turbine encounters a JsonB column or HStore column, it will type out these values as the safest possible types for their language. IE: any in TypeScript, map? in Clojure Spec and HashMap<String, String> in Rust. Additionally, all date/time types are represented as strings. I did this because of laziness, the possibility of date/times not represented in the base language, and when interacting with an API, it's probably a string already.
+
+The Rails schema parser is also the simplest form I could build. It looks for create_table declarations, captures the next word as the name for the type and then looks for a word like "t.integer" to describe the type of the column. If the column declaration doesn't start with "t." or is surrounded by strings, things will break and break badly. So, don't do that.
+
+Finally, it doesn't handle where columns can be nullable... yet.
