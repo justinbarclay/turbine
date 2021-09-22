@@ -13,10 +13,10 @@ impl ToTypeScript for Database {
     })
   }
 }
-fn format_name(name: &str) -> String{
-  name.split("_").map(|n| {
-    n.chars().nth(0).unwrap().to_uppercase().to_string() + &n[1..]
-  })
+fn format_name(name: &str) -> String {
+  name
+    .split("_")
+    .map(|n| n.chars().nth(0).unwrap().to_uppercase().to_string() + &n[1..])
     .collect::<Vec<String>>()
     .join("")
 }
@@ -24,7 +24,7 @@ fn format_name(name: &str) -> String{
 impl ToTypeScript for Table {
   fn to_typescript(&self) -> String {
     let spec = self.columns.iter().fold(String::new(), |spec, column| {
-        [spec, "   ".to_owned() + &column.to_typescript()].join("\n")
+      [spec, "   ".to_owned() + &column.to_typescript()].join("\n")
     });
 
     let name = format_name(&self.name);
