@@ -45,14 +45,13 @@ impl std::fmt::Display for FormatTypes {
 #[clap(setting = AppSettings::ColoredHelp)]
 struct Opts {
   /// Specifies the location of the Rails schema file
-  #[clap(short, long, default_value = "db/schema.rb")]
   schema: String,
 
   /// Specifies type definition format to convert the schema file into.
   #[clap(short, long, default_value = "spec", possible_values = &["spec", "rust", "typescript"])]
   format: FormatTypes,
 
-  /// The name of the file to output the results into
+  /// Where to save the output. If no name is specified it defaults to stdout
   #[clap(short, long)]
   output: Option<String>,
 }

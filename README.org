@@ -7,7 +7,10 @@ It's described as a toy because the parsing of schema files is less than robust,
 #+NAME: Usage
 #+begin_src shell
 USAGE:
-    turbine [OPTIONS]
+    turbine [OPTIONS] <SCHEMA>
+
+ARGS:
+    <SCHEMA>    Specifies the location of the Rails schema file
 
 FLAGS:
     -h, --help       Print help information
@@ -16,8 +19,7 @@ FLAGS:
 OPTIONS:
     -f, --format <FORMAT>    Specifies type definition format to convert the schema file into
                              [default: spec] [possible values: spec, rust, typescript]
-    -o, --output <OUTPUT>    The name of the file to output the results into
-    -s, --schema <SCHEMA>    Specifies the location of the Rails schema file [default: db/schema.rb]
+    -o, --output <OUTPUT>    Where to save the output. If no name is specified it defaults to stdout
 #+end_src
 ** Example Output
 Given a rails schema of
