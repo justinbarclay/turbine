@@ -1,6 +1,6 @@
 use std::{io, vec};
 
-use super::{Table, RailsColumn, Database};
+use super::{Database, RailsColumn, Table};
 
 impl Table {
   fn from_tokens(mut tokens: Vec<&str>) -> Result<(Self, Vec<&str>), io::ErrorKind> {
