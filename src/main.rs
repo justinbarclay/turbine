@@ -1,4 +1,4 @@
-use schema_parser::{rust::ToRust, spec::ToSpec, Database};
+use schema_parser::{rust::ToRust, spec::ToSpec, Database, typescript::ToTypeScript};
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
@@ -10,6 +10,7 @@ use clap::{AppSettings, Clap};
 enum OutputTypes {
   Spec,
   Rust,
+  TypeScript,
 }
 
 impl FromStr for OutputTypes {
@@ -19,6 +20,7 @@ impl FromStr for OutputTypes {
     match s.to_lowercase().as_str() {
       "rust" => Ok(OutputTypes::Rust),
       "spec" => Ok(OutputTypes::Spec),
+      "typescript" => Ok(OutputTypes::TypeScript),
       cant_parse => panic!("{} is not a valid output", cant_parse),
     }
   }
@@ -55,8 +57,10 @@ fn main() {
     eprintln!("couldn't read {}: {}", display, why);
     return;
   }
-  match opts.output{
-    OutputTypes::Spec =>   println!("{}", Database::from(&schema).to_spec()),
-    OutputTypes::Rust =>   println!("{}", Database::from(&schema).to_rust())
-  }
+  let spec = match opts.output {
+    OutputTypes::Spec => Database::from(&schema).to_spec(),
+    OutputTypes::Rust => Database::from(&schema).to_rust(),
+    OutputTypes::TypeScript => Database::from(&schema).to_typescript(),
+  };
+  println!("{}", spec);
 }
