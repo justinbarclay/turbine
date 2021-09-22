@@ -93,12 +93,8 @@ fn main() {
         Ok(file) => file,
       };
 
-      match write!(file, "{}", spec) {
-        Err(why) => {
-          eprintln!("couldn't open {}: {}", output_display, why);
-          return;
-        }
-        Ok(_) => (),
+      if let Err(why) = write!(file, "{}", spec) {
+        eprintln!("couldn't open {}: {}", output_display, why);
       }
     }
     None => println!("{}", spec),

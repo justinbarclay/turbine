@@ -15,8 +15,8 @@ impl ToRust for Database {
 }
 fn format_name(name: &str) -> String {
   name
-    .split("_")
-    .map(|n| n.chars().nth(0).unwrap().to_uppercase().to_string() + &n[1..])
+    .split('_')
+    .map(|n| n.chars().next().unwrap().to_uppercase().to_string() + &n[1..])
     .collect::<Vec<String>>()
     .join("")
 }
