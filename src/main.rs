@@ -1,9 +1,9 @@
-use schema_parser::{rust::ToRust, spec::ToSpec, typescript::ToTypeScript, Database};
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 use std::str::FromStr;
 use std::string::ParseError;
+use turbine::{rust::ToRust, spec::ToSpec, typescript::ToTypeScript, Database};
 
 use clap::{AppSettings, Clap};
 
@@ -38,7 +38,10 @@ impl std::fmt::Display for FormatTypes {
 }
 #[derive(Clap)]
 #[clap(version = "0.1", author = "Justin Barclay <justincbarclay@gmail.com>")]
-#[clap(description = "turbine is a toy cli for converting a schema file into type declarations")]
+#[clap(
+  name = "turbine",
+  about = "🌬️ a simple tool to bootstrap type declarations 🌬️"
+)]
 #[clap(setting = AppSettings::ColoredHelp)]
 struct Opts {
   /// Specifies the location of the Rails schema file
