@@ -1,6 +1,7 @@
 pub mod rails_parser;
 pub mod rust;
 pub mod spec;
+pub mod typescript;
 // An enum contains it's type and key value
 #[derive(Debug)]
 pub enum RailsColumn {
