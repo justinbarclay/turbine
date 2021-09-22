@@ -1,7 +1,5 @@
 use std::{
-    fmt::{format, Error},
     io,
-    string::ParseError,
     vec,
 };
 
@@ -108,9 +106,9 @@ impl Table {
         Err(io::ErrorKind::NotFound)
     }
     pub fn to_spec(&self) -> String {
-        let mut spec = self.columns.iter().fold(String::new(), |spec, column| {
+        let spec = self.columns.iter().fold(String::new(), |spec, column| {
             if spec.is_empty() {
-                spec + &column.to_spec()
+              spec + &column.to_spec()
             } else {
                 [spec, "   ".to_owned() + &column.to_spec()].join("\n")
             }
