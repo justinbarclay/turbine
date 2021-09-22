@@ -2,7 +2,7 @@ use super::Database;
 use super::RailsColumn;
 use super::Table;
 
-trait ToSpec {
+pub trait ToSpec {
   fn to_spec(&self) -> String;
 }
 
@@ -45,6 +45,8 @@ impl ToSpec for RailsColumn {
       RailsColumn::Date(key) => formatter(key, "string?"),
       RailsColumn::Binary(key) => formatter(key, "string?"),
       RailsColumn::Boolean(key) => formatter(key, "boolean?"),
+      RailsColumn::HStore(key) => formatter(key, "map?"),
+      RailsColumn::JsonB(key) => formatter(key, "map?"),
     }
   }
 }

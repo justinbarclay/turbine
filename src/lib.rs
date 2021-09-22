@@ -1,4 +1,5 @@
 pub mod rails_parser;
+pub mod spec;
 // An enum contains it's type and key value
 #[derive(Debug)]
 pub enum RailsColumn {
@@ -14,6 +15,8 @@ pub enum RailsColumn {
   Time(String),
   Date(String),
   Binary(String),
+  HStore(String),
+  JsonB(String),
   Boolean(String),
 }
 
