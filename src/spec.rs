@@ -29,32 +29,33 @@ impl ToSpec for Table {
   }
 }
 
-fn formatter (key: &str, type_decl: &str, nullable: bool) -> String{
-  if nullable {
-    format!(":{} {}", &key, type_decl)
-  } else {
-    format!(":{} {}", &key, type_decl)
+impl ToSpec for RailsColumn {
+  fn to_spec(&self) -> String {
+    match self {
+      RailsColumn::PrimaryKey => "int?".to_string(),
+      RailsColumn::String => "string?".to_string(),
+      RailsColumn::Text => "string?".to_string(),
+      RailsColumn::Integer => "int?".to_string(),
+      RailsColumn::Bigint => "int?".to_string(),
+      RailsColumn::Float => "float?".to_string(),
+      RailsColumn::Decimal => "float?".to_string(),
+      RailsColumn::Numeric => "int?".to_string(),
+      RailsColumn::Datetime => "string?".to_string(),
+      RailsColumn::Time => "string?".to_string(),
+      RailsColumn::Date => "string?".to_string(),
+      RailsColumn::Binary => "string?".to_string(),
+      RailsColumn::Boolean => "boolean?".to_string(),
+      RailsColumn::HStore => "map?".to_string(),
+      RailsColumn::JsonB => "map?".to_string(),
+    }
   }
 }
-
 impl ToSpec for ColumnData {
   fn to_spec(&self) -> String {
-    match self.value_type {
-      RailsColumn::PrimaryKey => formatter(&self.name, "int?", self.nullable),
-      RailsColumn::String => formatter(&self.name, "string?", self.nullable),
-      RailsColumn::Text => formatter(&self.name, "string?", self.nullable),
-      RailsColumn::Integer => formatter(&self.name, "int?", self.nullable),
-      RailsColumn::Bigint => formatter(&self.name, "int?", self.nullable),
-      RailsColumn::Float => formatter(&self.name, "float?", self.nullable),
-      RailsColumn::Decimal => formatter(&self.name, "float?", self.nullable),
-      RailsColumn::Numeric => formatter(&self.name, "int?", self.nullable),
-      RailsColumn::Datetime => formatter(&self.name, "string?", self.nullable),
-      RailsColumn::Time => formatter(&self.name, "string?", self.nullable),
-      RailsColumn::Date => formatter(&self.name, "string?", self.nullable),
-      RailsColumn::Binary => formatter(&self.name, "string?", self.nullable),
-      RailsColumn::Boolean => formatter(&self.name, "boolean?", self.nullable),
-      RailsColumn::HStore => formatter(&self.name, "map?", self.nullable),
-      RailsColumn::JsonB => formatter(&self.name, "map?", self.nullable),
+    if self.nullable {
+      format!(":{} {}", self.name, self.value_type.to_spec())
+    } else {
+      format!(":{} {}", self.name, self.value_type.to_spec())
     }
   }
 }
