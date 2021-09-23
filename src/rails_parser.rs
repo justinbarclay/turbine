@@ -1,6 +1,6 @@
 use std::{io, vec};
 
-use super::{Database, RailsColumn, Table};
+use super::{ColumnData, Database, RailsColumn, Table};
 
 impl Table {
   fn from_tokens(mut tokens: Vec<&str>) -> Result<(Self, Vec<&str>), io::ErrorKind> {
@@ -28,23 +28,81 @@ impl Table {
 
       // Ok so we're inside a table declaration
       let column = match tokens[i] {
-        "t.primary_key" => {
-          RailsColumn::PrimaryKey(tokens[i + 1].trim_matches(matchers).to_string())
-        }
-        "t.string" => RailsColumn::String(tokens[i + 1].trim_matches(matchers).to_string()),
-        "t.text" => RailsColumn::Text(tokens[i + 1].trim_matches(matchers).to_string()),
-        "t.integer" => RailsColumn::Integer(tokens[i + 1].trim_matches(matchers).to_string()),
-        "t.bigint" => RailsColumn::Bigint(tokens[i + 1].trim_matches(matchers).to_string()),
-        "t.float" => RailsColumn::Float(tokens[i + 1].trim_matches(matchers).to_string()),
-        "t.decimal" => RailsColumn::Decimal(tokens[i + 1].trim_matches(matchers).to_string()),
-        "t.numeric" => RailsColumn::Numeric(tokens[i + 1].trim_matches(matchers).to_string()),
-        "t.datetime" => RailsColumn::Datetime(tokens[i + 1].trim_matches(matchers).to_string()),
-        "t.time" => RailsColumn::Time(tokens[i + 1].trim_matches(matchers).to_string()),
-        "t.date" => RailsColumn::Date(tokens[i + 1].trim_matches(matchers).to_string()),
-        "t.binary" => RailsColumn::Binary(tokens[i + 1].trim_matches(matchers).to_string()),
-        "t.boolean" => RailsColumn::Boolean(tokens[i + 1].trim_matches(matchers).to_string()),
-        "t.hstore" => RailsColumn::HStore(tokens[i + 1].trim_matches(matchers).to_string()),
-        "t.jsonb" => RailsColumn::HStore(tokens[i + 1].trim_matches(matchers).to_string()),
+        "t.primary_key" => ColumnData {
+          value_type: RailsColumn::PrimaryKey,
+          name: tokens[i + 1].trim_matches(matchers).to_string(),
+          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
+        },
+        "t.string" => ColumnData {
+          value_type: RailsColumn::String,
+          name: tokens[i + 1].trim_matches(matchers).to_string(),
+          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
+        },
+        "t.text" => ColumnData {
+          value_type: RailsColumn::Text,
+          name: tokens[i + 1].trim_matches(matchers).to_string(),
+          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
+        },
+        "t.integer" => ColumnData {
+          value_type: RailsColumn::Integer,
+          name: tokens[i + 1].trim_matches(matchers).to_string(),
+          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
+        },
+        "t.bigint" => ColumnData {
+          value_type: RailsColumn::Bigint,
+          name: tokens[i + 1].trim_matches(matchers).to_string(),
+          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
+        },
+        "t.float" => ColumnData {
+          value_type: RailsColumn::Float,
+          name: tokens[i + 1].trim_matches(matchers).to_string(),
+          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
+        },
+        "t.decimal" => ColumnData {
+          value_type: RailsColumn::Decimal,
+          name: tokens[i + 1].trim_matches(matchers).to_string(),
+          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
+        },
+        "t.numeric" => ColumnData {
+          value_type: RailsColumn::Numeric,
+          name: tokens[i + 1].trim_matches(matchers).to_string(),
+          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
+        },
+        "t.datetime" => ColumnData {
+          value_type: RailsColumn::Datetime,
+          name: tokens[i + 1].trim_matches(matchers).to_string(),
+          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
+        },
+        "t.time" => ColumnData {
+          value_type: RailsColumn::Time,
+          name: tokens[i + 1].trim_matches(matchers).to_string(),
+          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
+        },
+        "t.date" => ColumnData {
+          value_type: RailsColumn::Date,
+          name: tokens[i + 1].trim_matches(matchers).to_string(),
+          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
+        },
+        "t.binary" => ColumnData {
+          value_type: RailsColumn::Binary,
+          name: tokens[i + 1].trim_matches(matchers).to_string(),
+          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
+        },
+        "t.boolean" => ColumnData {
+          value_type: RailsColumn::Boolean,
+          name: tokens[i + 1].trim_matches(matchers).to_string(),
+          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
+        },
+        "t.hstore" => ColumnData {
+          value_type: RailsColumn::HStore,
+          name: tokens[i + 1].trim_matches(matchers).to_string(),
+          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
+        },
+        "t.jsonb" => ColumnData {
+          value_type: RailsColumn::HStore,
+          name: tokens[i + 1].trim_matches(matchers).to_string(),
+          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
+        },
         "end" => return Ok((table, tokens.split_off(i))),
         _ => continue,
       };

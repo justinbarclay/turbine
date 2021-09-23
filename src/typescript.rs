@@ -1,3 +1,5 @@
+use crate::ColumnData;
+
 use super::Database;
 use super::RailsColumn;
 use super::Table;
@@ -32,25 +34,32 @@ impl ToTypeScript for Table {
   }
 }
 
-impl ToTypeScript for RailsColumn {
+fn formatter (key: &str, type_decl: &str, nullable: bool) -> String{
+  if nullable {
+    format!("{}?: {};", &key, type_decl)
+  } else {
+    format!("{}: {};", &key, type_decl)
+  }
+}
+
+impl ToTypeScript for ColumnData {
   fn to_typescript(&self) -> String {
-    let formatter = |key, type_decl| format!("{}: {};", &key, type_decl);
-    match self {
-      RailsColumn::PrimaryKey(key) => formatter(key, "number"),
-      RailsColumn::String(key) => formatter(key, "string"),
-      RailsColumn::Text(key) => formatter(key, "string"),
-      RailsColumn::Integer(key) => formatter(key, "number"),
-      RailsColumn::Bigint(key) => formatter(key, "number"),
-      RailsColumn::Float(key) => formatter(key, "number"),
-      RailsColumn::Decimal(key) => formatter(key, "number"),
-      RailsColumn::Numeric(key) => formatter(key, "number"),
-      RailsColumn::Datetime(key) => formatter(key, "string"),
-      RailsColumn::Time(key) => formatter(key, "string"),
-      RailsColumn::Date(key) => formatter(key, "string"),
-      RailsColumn::Binary(key) => formatter(key, "string"), // Assuming byte64 buffer
-      RailsColumn::Boolean(key) => formatter(key, "bool"),
-      RailsColumn::JsonB(key) => formatter(key, "any"),
-      RailsColumn::HStore(key) => formatter(key, "any"),
+    match self.value_type {
+      RailsColumn::PrimaryKey => formatter(&self.name, "number", self.nullable),
+      RailsColumn::String => formatter(&self.name, "string", self.nullable),
+      RailsColumn::Text => formatter(&self.name, "string", self.nullable),
+      RailsColumn::Integer => formatter(&self.name, "number", self.nullable),
+      RailsColumn::Bigint => formatter(&self.name, "number", self.nullable),
+      RailsColumn::Float => formatter(&self.name, "number", self.nullable),
+      RailsColumn::Decimal => formatter(&self.name, "number", self.nullable),
+      RailsColumn::Numeric => formatter(&self.name, "number", self.nullable),
+      RailsColumn::Datetime => formatter(&self.name, "string", self.nullable),
+      RailsColumn::Time => formatter(&self.name, "string", self.nullable),
+      RailsColumn::Date => formatter(&self.name, "string", self.nullable),
+      RailsColumn::Binary => formatter(&self.name, "string", self.nullable), // Assuming byte64 buffer
+      RailsColumn::Boolean => formatter(&self.name, "bool", self.nullable),
+      RailsColumn::JsonB => formatter(&self.name, "any", self.nullable),
+      RailsColumn::HStore => formatter(&self.name, "any", self.nullable),
     }
   }
 }

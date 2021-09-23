@@ -1,3 +1,5 @@
+use crate::ColumnData;
+
 use super::Database;
 use super::RailsColumn;
 use super::Table;
@@ -32,25 +34,32 @@ impl ToRust for Table {
   }
 }
 
-impl ToRust for RailsColumn {
+fn formatter (key: &str, type_decl: &str, nullable: bool) -> String{
+  if nullable {
+    format!("{}: Option<{}>,", &key, type_decl)
+  } else {
+    format!("{}: {},", &key, type_decl)
+  }
+}
+
+impl ToRust for ColumnData {
   fn to_rust(&self) -> String {
-    let formatter = |key, type_decl| format!("{}: {},", &key, type_decl);
-    match self {
-      RailsColumn::PrimaryKey(key) => formatter(key, "usize"),
-      RailsColumn::String(key) => formatter(key, "String"),
-      RailsColumn::Text(key) => formatter(key, "String"),
-      RailsColumn::Integer(key) => formatter(key, "i64"),
-      RailsColumn::Bigint(key) => formatter(key, "i128"),
-      RailsColumn::Float(key) => formatter(key, "f64"),
-      RailsColumn::Decimal(key) => formatter(key, "f64"),
-      RailsColumn::Numeric(key) => formatter(key, "i64"),
-      RailsColumn::Datetime(key) => formatter(key, "String"),
-      RailsColumn::Time(key) => formatter(key, "String"),
-      RailsColumn::Date(key) => formatter(key, "String"),
-      RailsColumn::Binary(key) => formatter(key, "Vec<u8>"),
-      RailsColumn::Boolean(key) => formatter(key, "bool"),
-      RailsColumn::HStore(key) => formatter(key, "std::collections::HashMap<String,String>"),
-      RailsColumn::JsonB(key) => formatter(key, "std::collections::HashMap<String,String>"),
+    match self.value_type {
+      RailsColumn::PrimaryKey => formatter(&self.name, "usize", self.nullable),
+      RailsColumn::String => formatter(&self.name, "String", self.nullable),
+      RailsColumn::Text => formatter(&self.name, "String", self.nullable),
+      RailsColumn::Integer => formatter(&self.name, "i64", self.nullable),
+      RailsColumn::Bigint => formatter(&self.name, "i128", self.nullable),
+      RailsColumn::Float => formatter(&self.name, "f64", self.nullable),
+      RailsColumn::Decimal => formatter(&self.name, "f64", self.nullable),
+      RailsColumn::Numeric => formatter(&self.name, "i64", self.nullable),
+      RailsColumn::Datetime => formatter(&self.name, "String", self.nullable),
+      RailsColumn::Time => formatter(&self.name, "String", self.nullable),
+      RailsColumn::Date => formatter(&self.name, "String", self.nullable),
+      RailsColumn::Binary => formatter(&self.name, "Vec<u8>", self.nullable),
+      RailsColumn::Boolean => formatter(&self.name, "bool", self.nullable),
+      RailsColumn::HStore => formatter(&self.name, "std::collections::HashMap<String,String>", self.nullable),
+      RailsColumn::JsonB => formatter(&self.name, "std::collections::HashMap<String,String>", self.nullable),
     }
   }
 }
