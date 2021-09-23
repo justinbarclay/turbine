@@ -132,3 +132,28 @@ impl Database {
     database
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use std::vec;
+
+  use crate::{ColumnData, Database, RailsColumn, Table};
+
+  #[test]
+  fn it_parses_a_simple_rails_table_definition() {
+    let table = "create_table \"sample_schema\", id: :serial, force: :cascade do |t|
+    t.primary_key \"a\"
+  end";
+    assert_eq!(
+      Database::from(table),
+      Database(vec![Table {
+        name: "sample_schema".to_string(),
+        columns: vec![ColumnData {
+          name: "a".to_string(),
+          value_type: RailsColumn::PrimaryKey,
+          nullable: true
+        }]
+      }])
+    );
+  }
+}
