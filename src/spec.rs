@@ -66,10 +66,8 @@ impl ToSpec for ColumnData {
 
 #[cfg(test)]
 pub mod test {
-  #[cfg(test)]
-  use std::{panic, str::FromStr, vec};
+  use crate::{spec::ToSpec, Database};
 
-  use crate::{spec::ToSpec, ColumnData, Database, RailsColumn, Table};
   #[test]
   fn can_convert_a_rails_schema_to_a_string_version_of_a_rust_struct() {
     let schema = "ActiveRecord::Schema.define(version: 20_210_916_202_951) do

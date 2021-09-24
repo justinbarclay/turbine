@@ -1,4 +1,4 @@
-use crate::rust::ToRust;
+
 use crate::ColumnData;
 
 use super::Database;
@@ -73,10 +73,7 @@ impl ToTypeScript for ColumnData {
 
 #[cfg(test)]
 pub mod test {
-  #[cfg(test)]
-  use std::{panic, str::FromStr, vec};
-
-  use crate::{ColumnData, Database, RailsColumn, Table, rust::ToRust, typescript::ToTypeScript};
+  use crate::{Database, typescript::ToTypeScript};
   #[test]
   fn can_convert_a_rails_schema_to_a_string_version_of_a_rust_struct() {
     let schema = "ActiveRecord::Schema.define(version: 20_210_916_202_951) do

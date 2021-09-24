@@ -72,10 +72,7 @@ impl ToRust for ColumnData {
 
 #[cfg(test)]
 pub mod test {
-  #[cfg(test)]
-  use std::{panic, str::FromStr, vec};
-
-  use crate::{rust::ToRust, ColumnData, Database, RailsColumn, Table};
+  use crate::{rust::ToRust, Database};
   #[test]
   fn can_convert_a_rails_schema_to_a_string_version_of_a_rust_struct() {
     let schema = "ActiveRecord::Schema.define(version: 20_210_916_202_951) do

@@ -42,12 +42,8 @@ impl PartialEq for Table {
       return false;
     }
     let eq_names = self.name == other.name;
-    let contains_self = self.columns.iter().fold(true, |contains, column| {
-      contains && other.columns.contains(column)
-    });
-    let contains_other = other.columns.iter().fold(true, |contains, column| {
-      contains && self.columns.contains(column)
-    });
+    let contains_self = self.columns.iter().all(|column| other.columns.contains(column));
+    let contains_other = other.columns.iter().all(|column| self.columns.contains(column));
 
     eq_names && contains_self && contains_other
   }

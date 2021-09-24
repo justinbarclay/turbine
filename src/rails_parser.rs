@@ -1,4 +1,4 @@
-use std::{io, str::FromStr, vec};
+use std::{str::FromStr, vec};
 
 use super::{ColumnData, Database, RailsColumn, Table};
 
