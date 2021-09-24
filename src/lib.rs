@@ -38,8 +38,8 @@ pub struct Table {
 
 impl PartialEq for Table {
   fn eq(&self, other: &Self) -> bool {
-    if self.columns.len() != other.columns.len(){
-      return false
+    if self.columns.len() != other.columns.len() {
+      return false;
     }
     let eq_names = self.name == other.name;
     let contains_self = self.columns.iter().fold(true, |contains, column| {
@@ -137,7 +137,7 @@ mod tests {
   }
 
   #[test]
-  fn tables_of_different_sizes_kinda_hate_each_other(){
+  fn tables_of_different_sizes_kinda_hate_each_other() {
     assert_ne!(
       Table {
         name: "sample_schema".to_string(),
