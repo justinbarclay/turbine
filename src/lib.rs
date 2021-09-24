@@ -53,7 +53,8 @@ impl PartialEq for Table {
 pub struct Database(Vec<Table>);
 
 mod tests {
-  use super::{ColumnData, Database, RailsColumn, Table};
+  #![allow(unused_imports)]
+  use crate::{ColumnData, Database, RailsColumn, Table};
 
   #[test]
   fn rails_columns_are_equal() {

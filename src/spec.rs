@@ -56,11 +56,7 @@ impl ToSpec for RailsColumn {
 }
 impl ToSpec for ColumnData {
   fn to_spec(&self) -> String {
-    if self.nullable {
-      format!(":{} {}", self.name, self.value_type.to_spec())
-    } else {
-      format!(":{} {}", self.name, self.value_type.to_spec())
-    }
+    format!(":{} {}", self.name, self.value_type.to_spec())
   }
 }
 
