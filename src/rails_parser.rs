@@ -111,12 +111,15 @@ mod tests {
 
   use crate::{ColumnData, Database, RailsColumn, Table};
   #[test]
-   fn rails_columns_respond_to_from_str(){
-     assert_eq!(RailsColumn::from_str("t.integer").unwrap(), RailsColumn::Integer)
-   }
+  fn rails_columns_respond_to_from_str() {
+    assert_eq!(
+      RailsColumn::from_str("t.integer").unwrap(),
+      RailsColumn::Integer
+    )
+  }
 
   #[test]
-  fn rails_columns_throws_an_error_when_it_doesnt_recognize_the_token(){
+  fn rails_columns_throws_an_error_when_it_doesnt_recognize_the_token() {
     assert!(RailsColumn::from_str("unrecognized").is_err())
   }
   #[test]
