@@ -1,6 +1,34 @@
-use std::{io, vec};
+use std::{io, str::FromStr, vec};
 
 use super::{ColumnData, Database, RailsColumn, Table};
+
+#[derive(Debug)]
+pub struct RailsParseError(String);
+
+impl FromStr for RailsColumn {
+  type Err = RailsParseError;
+
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    match s {
+      "t.primary_key" => Ok(RailsColumn::PrimaryKey),
+      "t.string" => Ok(RailsColumn::String),
+      "t.text" => Ok(RailsColumn::Text),
+      "t.integer" => Ok(RailsColumn::Integer),
+      "t.bigint" => Ok(RailsColumn::Bigint),
+      "t.float" => Ok(RailsColumn::Float),
+      "t.decimal" => Ok(RailsColumn::Decimal),
+      "t.numeric" => Ok(RailsColumn::Numeric),
+      "t.datetime" => Ok(RailsColumn::Datetime),
+      "t.time" => Ok(RailsColumn::Time),
+      "t.date" => Ok(RailsColumn::Date),
+      "t.binary" => Ok(RailsColumn::Binary),
+      "t.boolean" => Ok(RailsColumn::Boolean),
+      "t.hstore" => Ok(RailsColumn::HStore),
+      "t.jsonb" => Ok(RailsColumn::HStore),
+      token => Err(RailsParseError(format!("Unable to parse token: {}", token))),
+    }
+  }
+}
 
 impl Table {
   fn from_tokens(mut tokens: Vec<&str>) -> (Option<Self>, Vec<&str>) {
@@ -27,90 +55,21 @@ impl Table {
       }
 
       // Ok so we're inside a table declaration
-      let column = match tokens[i] {
-        "t.primary_key" => ColumnData {
-          value_type: RailsColumn::PrimaryKey,
+      let column = match (tokens[i], RailsColumn::from_str(tokens[i])) {
+        (_, Ok(value_type)) => ColumnData {
+          value_type,
           name: tokens[i + 1].trim_matches(matchers).to_string(),
           nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
         },
-        "t.string" => ColumnData {
-          value_type: RailsColumn::String,
-          name: tokens[i + 1].trim_matches(matchers).to_string(),
-          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
-        },
-        "t.text" => ColumnData {
-          value_type: RailsColumn::Text,
-          name: tokens[i + 1].trim_matches(matchers).to_string(),
-          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
-        },
-        "t.integer" => ColumnData {
-          value_type: RailsColumn::Integer,
-          name: tokens[i + 1].trim_matches(matchers).to_string(),
-          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
-        },
-        "t.bigint" => ColumnData {
-          value_type: RailsColumn::Bigint,
-          name: tokens[i + 1].trim_matches(matchers).to_string(),
-          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
-        },
-        "t.float" => ColumnData {
-          value_type: RailsColumn::Float,
-          name: tokens[i + 1].trim_matches(matchers).to_string(),
-          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
-        },
-        "t.decimal" => ColumnData {
-          value_type: RailsColumn::Decimal,
-          name: tokens[i + 1].trim_matches(matchers).to_string(),
-          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
-        },
-        "t.numeric" => ColumnData {
-          value_type: RailsColumn::Numeric,
-          name: tokens[i + 1].trim_matches(matchers).to_string(),
-          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
-        },
-        "t.datetime" => ColumnData {
-          value_type: RailsColumn::Datetime,
-          name: tokens[i + 1].trim_matches(matchers).to_string(),
-          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
-        },
-        "t.time" => ColumnData {
-          value_type: RailsColumn::Time,
-          name: tokens[i + 1].trim_matches(matchers).to_string(),
-          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
-        },
-        "t.date" => ColumnData {
-          value_type: RailsColumn::Date,
-          name: tokens[i + 1].trim_matches(matchers).to_string(),
-          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
-        },
-        "t.binary" => ColumnData {
-          value_type: RailsColumn::Binary,
-          name: tokens[i + 1].trim_matches(matchers).to_string(),
-          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
-        },
-        "t.boolean" => ColumnData {
-          value_type: RailsColumn::Boolean,
-          name: tokens[i + 1].trim_matches(matchers).to_string(),
-          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
-        },
-        "t.hstore" => ColumnData {
-          value_type: RailsColumn::HStore,
-          name: tokens[i + 1].trim_matches(matchers).to_string(),
-          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
-        },
-        "t.jsonb" => ColumnData {
-          value_type: RailsColumn::HStore,
-          name: tokens[i + 1].trim_matches(matchers).to_string(),
-          nullable: !(tokens[i + 2] == "null:" && tokens[i + 3] == "false"),
-        },
-        "end" => return (Some(table), tokens.split_off(i + 1)),
+        ("end", Err(_)) => return (Some(table), tokens.split_off(i + 1)),
 
-        "create_table" => panic!(
+        ("create_table", Err(_)) => panic!(
           "{}",
           "Warning Invalid Rails Schema:\n Found create_table inside create_table block"
         ),
-        _ => continue,
+        (_, Err(_)) => continue,
       };
+
       table.columns.push(column);
     }
 
@@ -148,10 +107,18 @@ impl Database {
 
 #[cfg(test)]
 mod tests {
-  use std::{panic, vec};
+  use std::{panic, str::FromStr, vec};
 
   use crate::{ColumnData, Database, RailsColumn, Table};
+  #[test]
+   fn rails_columns_respond_to_from_str(){
+     assert_eq!(RailsColumn::from_str("t.integer").unwrap(), RailsColumn::Integer)
+   }
 
+  #[test]
+  fn rails_columns_throws_an_error_when_it_doesnt_recognize_the_token(){
+    assert!(RailsColumn::from_str("unrecognized").is_err())
+  }
   #[test]
   fn it_parses_a_simple_rails_table_definition() {
     let table = "create_table \"sample_schema\", id: :serial, force: :cascade do |t|
@@ -246,98 +213,96 @@ mod tests {
 end";
     assert_eq!(
       Database::from(table),
-      Database(vec![
-        Table {
-          name: "sample_schema".to_string(),
-          columns: vec![
-            ColumnData {
-              value_type: RailsColumn::PrimaryKey,
-              name: "a".to_string(),
-              nullable: true
-            },
-            ColumnData {
-              value_type: RailsColumn::String,
-              name: "b".to_string(),
-              nullable: true
-            },
-            ColumnData {
-              value_type: RailsColumn::Text,
-              name: "c".to_string(),
-              nullable: true
-            },
-            ColumnData {
-              value_type: RailsColumn::Integer,
-              name: "d".to_string(),
-              nullable: true
-            },
-            ColumnData {
-              value_type: RailsColumn::Bigint,
-              name: "e".to_string(),
-              nullable: true
-            },
-            ColumnData {
-              value_type: RailsColumn::Float,
-              name: "f".to_string(),
-              nullable: true
-            },
-            ColumnData {
-              value_type: RailsColumn::Decimal,
-              name: "g".to_string(),
-              nullable: true
-            },
-            ColumnData {
-              value_type: RailsColumn::Numeric,
-              name: "h".to_string(),
-              nullable: true
-            },
-            ColumnData {
-              value_type: RailsColumn::Datetime,
-              name: "i".to_string(),
-              nullable: true
-            },
-            ColumnData {
-              value_type: RailsColumn::Time,
-              name: "j".to_string(),
-              nullable: true
-            },
-            ColumnData {
-              value_type: RailsColumn::Date,
-              name: "k".to_string(),
-              nullable: true
-            },
-            ColumnData {
-              value_type: RailsColumn::Binary,
-              name: "l".to_string(),
-              nullable: true
-            },
-            ColumnData {
-              value_type: RailsColumn::Boolean,
-              name: "m".to_string(),
-              nullable: true
-            },
-            ColumnData {
-              value_type: RailsColumn::HStore,
-              name: "n".to_string(),
-              nullable: true
-            },
-            ColumnData {
-              value_type: RailsColumn::HStore,
-              name: "o".to_string(),
-              nullable: true
-            },
-            ColumnData {
-              value_type: RailsColumn::Datetime,
-              name: "created_at".to_string(),
-              nullable: false
-            },
-            ColumnData {
-              value_type: RailsColumn::Datetime,
-              name: "updated_at".to_string(),
-              nullable: false
-            }
-          ]
-        }
-      ])
+      Database(vec![Table {
+        name: "sample_schema".to_string(),
+        columns: vec![
+          ColumnData {
+            value_type: RailsColumn::PrimaryKey,
+            name: "a".to_string(),
+            nullable: true
+          },
+          ColumnData {
+            value_type: RailsColumn::String,
+            name: "b".to_string(),
+            nullable: true
+          },
+          ColumnData {
+            value_type: RailsColumn::Text,
+            name: "c".to_string(),
+            nullable: true
+          },
+          ColumnData {
+            value_type: RailsColumn::Integer,
+            name: "d".to_string(),
+            nullable: true
+          },
+          ColumnData {
+            value_type: RailsColumn::Bigint,
+            name: "e".to_string(),
+            nullable: true
+          },
+          ColumnData {
+            value_type: RailsColumn::Float,
+            name: "f".to_string(),
+            nullable: true
+          },
+          ColumnData {
+            value_type: RailsColumn::Decimal,
+            name: "g".to_string(),
+            nullable: true
+          },
+          ColumnData {
+            value_type: RailsColumn::Numeric,
+            name: "h".to_string(),
+            nullable: true
+          },
+          ColumnData {
+            value_type: RailsColumn::Datetime,
+            name: "i".to_string(),
+            nullable: true
+          },
+          ColumnData {
+            value_type: RailsColumn::Time,
+            name: "j".to_string(),
+            nullable: true
+          },
+          ColumnData {
+            value_type: RailsColumn::Date,
+            name: "k".to_string(),
+            nullable: true
+          },
+          ColumnData {
+            value_type: RailsColumn::Binary,
+            name: "l".to_string(),
+            nullable: true
+          },
+          ColumnData {
+            value_type: RailsColumn::Boolean,
+            name: "m".to_string(),
+            nullable: true
+          },
+          ColumnData {
+            value_type: RailsColumn::HStore,
+            name: "n".to_string(),
+            nullable: true
+          },
+          ColumnData {
+            value_type: RailsColumn::HStore,
+            name: "o".to_string(),
+            nullable: true
+          },
+          ColumnData {
+            value_type: RailsColumn::Datetime,
+            name: "created_at".to_string(),
+            nullable: false
+          },
+          ColumnData {
+            value_type: RailsColumn::Datetime,
+            name: "updated_at".to_string(),
+            nullable: false
+          }
+        ]
+      }])
     );
   }
 }
