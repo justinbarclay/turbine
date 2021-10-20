@@ -3,7 +3,7 @@ use std::io::prelude::*;
 use std::path::Path;
 use std::str::FromStr;
 use std::string::ParseError;
-use turbine::{rust::ToRust, spec::ToSpec, typescript::ToTypeScript, Database};
+use turbine::{rust::ToRust, spec::ToSpec, typescript::ToTypeScript, go::ToGo, Database};
 
 use clap::{AppSettings, Clap};
 
@@ -11,6 +11,7 @@ enum FormatTypes {
   Spec,
   Rust,
   TypeScript,
+  Go
 }
 
 impl FromStr for FormatTypes {
@@ -21,6 +22,7 @@ impl FromStr for FormatTypes {
       "rust" => Ok(FormatTypes::Rust),
       "spec" => Ok(FormatTypes::Spec),
       "typescript" => Ok(FormatTypes::TypeScript),
+      "go" => Ok(FormatTypes::Go),
       cant_parse => panic!("{} is not a valid output", cant_parse),
     }
   }
@@ -32,12 +34,13 @@ impl std::fmt::Display for FormatTypes {
       FormatTypes::Spec => "spec",
       FormatTypes::Rust => "rust",
       FormatTypes::TypeScript => "typescript",
+      FormatTypes::Go => "go",
     };
     write!(f, "{}", output)
   }
 }
 #[derive(Clap)]
-#[clap(version = "0.1", author = "Justin Barclay <justincbarclay@gmail.com>")]
+#[clap(version = "0.2", author = "Justin Barclay <justincbarclay@gmail.com>")]
 #[clap(
   name = "turbine",
   about = "🌬️ a simple tool to bootstrap type declarations 🌬️"
@@ -48,7 +51,7 @@ struct Opts {
   schema: String,
 
   /// Specifies type definition format to convert the schema file into.
-  #[clap(short, long, default_value = "spec", possible_values = &["spec", "rust", "typescript"])]
+  #[clap(short, long, default_value = "spec", possible_values = &["spec", "rust", "typescript", "go"])]
   format: FormatTypes,
 
   /// Where to save the output. If no name is specified it defaults to stdout
@@ -78,6 +81,7 @@ fn main() {
   let spec = match opts.format {
     FormatTypes::Spec => Database::from(&schema).to_spec(),
     FormatTypes::Rust => Database::from(&schema).to_rust(),
+    FormatTypes::Go => Database::from(&schema).to_go(),
     FormatTypes::TypeScript => Database::from(&schema).to_typescript(),
   };
 

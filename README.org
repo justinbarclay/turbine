@@ -18,7 +18,7 @@ FLAGS:
 
 OPTIONS:
     -f, --format <FORMAT>    Specifies type definition format to convert the schema file into
-                             [default: spec] [possible values: spec, rust, typescript]
+                             [default: spec] [possible values: spec, rust, typescript, go]
     -o, --output <OUTPUT>    Where to save the output. If no name is specified it defaults to stdout
 #+end_src
 ** Example Output
@@ -116,6 +116,30 @@ struct SampleSchema {
     created_at: string;
     updated_at: string;
   }
+#+end_src
+
+*** Go
+#+NAME: Go
+#+begin_src typescript
+type SampleSchema struct {
+    a: *int64,
+    b: *string,
+    c: *string,
+    d: *int64,
+    e: *int128,
+    f: *float64,
+    g: *float64,
+    h: *int64,
+    i: *time.Time,
+    j: *time.Time,
+    k: *time.Time,
+    l: *[]uint8,
+    m: *bool,
+    n: map[string]interface{},
+    o: map[string]interface{},
+    created_at: *time.Time,
+    updated_at: *time.Time,
+}
 #+end_src
 ** Building
 I have not set up, like, any CI/CD for this. So if you want a copy you'll have to build it yourself. Luckily, Rust makes this pretty easy.

@@ -2,6 +2,7 @@ pub mod rails_parser;
 pub mod rust;
 pub mod spec;
 pub mod typescript;
+pub mod go;
 
 #[derive(Debug, PartialEq)]
 pub struct ColumnData {
