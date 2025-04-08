@@ -1,10 +1,10 @@
 [package]
 name = "turbine"
 authors = ["Justin Barclay <justincbarclay@gmail>"]
-version = "0.1.0"
-edition = "2018"
+version = "0.1.1"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = "3.0.0-beta.4"
+clap = { version = "4.5", features = ["derive"] }

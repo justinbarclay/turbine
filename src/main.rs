@@ -1,61 +1,34 @@
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
-use std::str::FromStr;
-use std::string::ParseError;
 use turbine::{rust::ToRust, spec::ToSpec, typescript::ToTypeScript, go::ToGo, Database};
 
-use clap::{AppSettings, Clap};
+use clap::{Parser, ValueEnum};
 
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
 enum FormatTypes {
   Spec,
   Rust,
   TypeScript,
-  Go
+  Go,
 }
 
-impl FromStr for FormatTypes {
-  type Err = ParseError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s.to_lowercase().as_str() {
-      "rust" => Ok(FormatTypes::Rust),
-      "spec" => Ok(FormatTypes::Spec),
-      "typescript" => Ok(FormatTypes::TypeScript),
-      "go" => Ok(FormatTypes::Go),
-      cant_parse => panic!("{} is not a valid output", cant_parse),
-    }
-  }
-}
-
-impl std::fmt::Display for FormatTypes {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    let output = match self {
-      FormatTypes::Spec => "spec",
-      FormatTypes::Rust => "rust",
-      FormatTypes::TypeScript => "typescript",
-      FormatTypes::Go => "go",
-    };
-    write!(f, "{}", output)
-  }
-}
-#[derive(Clap)]
-#[clap(version = "0.2", author = "Justin Barclay <justincbarclay@gmail.com>")]
-#[clap(
+#[derive(Parser, Debug)]
+#[command(version = "0.2", author = "Justin Barclay <justincbarclay@gmail.com>")]
+#[command(
   name = "turbine",
   about = "🌬️ a simple tool to bootstrap type declarations 🌬️"
 )]
-#[clap(setting = AppSettings::ColoredHelp)]
 struct Opts {
   /// Specifies the location of the Rails schema file
   schema: String,
 
   /// Specifies type definition format to convert the schema file into.
-  #[clap(short, long, default_value = "spec", possible_values = &["spec", "rust", "typescript", "go"])]
+  #[arg(short, long, value_enum, default_value_t = FormatTypes::Spec)]
   format: FormatTypes,
 
   /// Where to save the output. If no name is specified it defaults to stdout
-  #[clap(short, long)]
+  #[arg(short, long)]
   output: Option<String>,
 }
 
@@ -89,16 +62,16 @@ fn main() {
     Some(name) => {
       let output_path = Path::new(&name);
       let output_display = output_path.display();
-      let mut file = match File::open(&path) {
+      let mut file = match File::create(&output_path) { // Use File::create to write
         Err(why) => {
-          eprintln!("couldn't open {}: {}", output_display, why);
+          eprintln!("couldn't create {}: {}", output_display, why); // Updated error message
           return;
         }
         Ok(file) => file,
       };
 
       if let Err(why) = write!(file, "{}", spec) {
-        eprintln!("couldn't open {}: {}", output_display, why);
+        eprintln!("couldn't write to {}: {}", output_display, why); // Updated error message
       }
     }
     None => println!("{}", spec),
